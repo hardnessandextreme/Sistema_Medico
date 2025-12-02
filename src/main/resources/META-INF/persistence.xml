@@ -1,7 +1,50 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
-    <!-- Define Persistence Unit -->
-    <persistence-unit name="my_persistence_unit">
+<persistence version="3.0" xmlns="https://jakarta.ee/xml/ns/persistence" 
+             xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+             xsi:schemaLocation="https://jakarta.ee/xml/ns/persistence 
+             https://jakarta.ee/xml/ns/persistence/persistence_3_0.xsd">
+    
+    <persistence-unit name="SistemaMedicoPU" transaction-type="RESOURCE_LOCAL">
+        <provider>org.hibernate.jpa.HibernatePersistenceProvider</provider>
         
+        <!-- Entidades JPA -->
+        <class>com.mycompany.consultorio.medico.model.Usuario</class>
+        <class>com.mycompany.consultorio.medico.model.Rol</class>
+        <class>com.mycompany.consultorio.medico.model.Especialidad</class>
+        <class>com.mycompany.consultorio.medico.model.EstadoCita</class>
+        <class>com.mycompany.consultorio.medico.model.Medicamento</class>
+        <class>com.mycompany.consultorio.medico.model.Medico</class>
+        <class>com.mycompany.consultorio.medico.model.Paciente</class>
+        <class>com.mycompany.consultorio.medico.model.Recepcionista</class>
+        <class>com.mycompany.consultorio.medico.model.Cita</class>
+        <class>com.mycompany.consultorio.medico.model.HorarioMedico</class>
+        <class>com.mycompany.consultorio.medico.model.Consulta</class>
+        <class>com.mycompany.consultorio.medico.model.Tratamiento</class>
+        <class>com.mycompany.consultorio.medico.model.SeguimientoTratamiento</class>
+        <class>com.mycompany.consultorio.medico.model.ExamenLaboratorio</class>
+        <class>com.mycompany.consultorio.medico.model.ArchivoMedico</class>
+        <class>com.mycompany.consultorio.medico.model.Auditoria</class>
+        
+        <properties>
+            <!-- Conexión PostgreSQL -->
+            <property name="jakarta.persistence.jdbc.driver" value="org.postgresql.Driver"/>
+            <property name="jakarta.persistence.jdbc.url" value="jdbc:postgresql://localhost:5432/sistema_medico"/>
+            <property name="jakarta.persistence.jdbc.user" value="postgres"/>
+            <property name="jakarta.persistence.jdbc.password" value="postgres123"/>
+            
+            <!-- Configuración Hibernate -->
+            <property name="hibernate.dialect" value="org.hibernate.dialect.PostgreSQLDialect"/>
+            <property name="hibernate.hbm2ddl.auto" value="none"/>
+            <property name="hibernate.show_sql" value="false"/>
+            <property name="hibernate.format_sql" value="false"/>
+            
+            <!-- Pool de conexiones -->
+            <property name="hibernate.connection.pool_size" value="10"/>
+            <property name="hibernate.connection.autocommit" value="false"/>
+            
+            <!-- Cache -->
+            <property name="hibernate.cache.use_second_level_cache" value="false"/>
+            <property name="hibernate.cache.use_query_cache" value="false"/>
+        </properties>
     </persistence-unit>
 </persistence>
