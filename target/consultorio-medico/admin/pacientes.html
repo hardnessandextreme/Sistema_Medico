@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pacientes - Sistema Médico</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 Sistema Médico</h2>
+        </div>
+        <div class="nav-menu">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="pacientes.html" class="nav-link active">Pacientes</a>
+            <a href="citas.html" class="nav-link">Citas</a>
+            <a href="medicos.html" class="nav-link">Médicos</a>
+            <a href="recepcionistas.html" class="nav-link">Recepcionistas</a>
+        </div>
+        <div class="nav-user">
+            <span id="userName">Usuario</span>
+            <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Gestión de Pacientes</h1>
+            <button onclick="openModalNuevoPaciente()" class="btn btn-primary">+ Nuevo Paciente</button>
+        </div>
+        
+        <!-- Tabla de Pacientes Activos -->
+        <div class="card">
+            <h3 style="color: #4CAF50; margin-bottom: 15px;">✅ Pacientes Activos</h3>
+            <div class="search-bar">
+                <input type="text" id="searchInput" placeholder="Buscar por cédula o nombre..." onkeyup="searchPacientes()">
+                <button onclick="searchPacientes()" class="btn btn-secondary">Buscar</button>
+            </div>
+            
+            <div class="table-container">
+                <table id="pacientesActivosTable">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Edad</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pacientesActivosBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabla de Pacientes Inactivos (Eliminados) -->
+        <div class="card" style="margin-top: 30px;">
+            <h3 style="color: #F44336; margin-bottom: 15px;">🗑️ Pacientes Inactivos (Eliminados)</h3>
+            <div class="table-container">
+                <table id="pacientesInactivosTable">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Edad</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="pacientesInactivosBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para crear/editar paciente -->
+    <div id="pacienteModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('pacienteModal')">&times;</span>
+            <h2 id="modalTitle">Nuevo Paciente</h2>
+            <form id="pacienteForm">
+                <input type="hidden" id="pacienteId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cedula">Cédula *</label>
+                        <input type="text" id="cedula" required maxlength="10" pattern="[0-9]{10}" title="La cédula debe tener exactamente 10 dígitos">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombres">Nombres *</label>
+                        <input type="text" id="nombres" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos *</label>
+                        <input type="text" id="apellidos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de Nacimiento *</label>
+                        <input type="date" id="fechaNacimiento" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="edad">Edad</label>
+                        <input type="number" id="edad" readonly>
+                        <small>Se calcula automáticamente</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="tipoSangre">Tipo de Sangre</label>
+                        <select id="tipoSangre">
+                            <option value="">Seleccione...</option>
+                            <option value="A+">A+</option>
+                            <option value="A-">A-</option>
+                            <option value="B+">B+</option>
+                            <option value="B-">B-</option>
+                            <option value="AB+">AB+</option>
+                            <option value="AB-">AB-</option>
+                            <option value="O+">O+</option>
+                            <option value="O-">O-</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="genero">Género</label>
+                        <select id="genero">
+                            <option value="M">Masculino</option>
+                            <option value="F">Femenino</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" id="telefono" maxlength="10" pattern="[0-9]{10}" title="El teléfono debe tener exactamente 10 dígitos">
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Ingrese un correo electrónico válido">
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" id="direccion">
+                    </div>
+                    <div class="form-group">
+                        <label for="ciudad">Ciudad</label>
+                        <select id="ciudad">
+                            <option value="">Seleccione una ciudad</option>
+                            <option value="Guayaquil">Guayaquil</option>
+                            <option value="Durán">Durán</option>
+                            <option value="Samborondón">Samborondón</option>
+                            <option value="Daule">Daule</option>
+                            <option value="Milagro">Milagro</option>
+                            <option value="Yaguachi">Yaguachi</option>
+                            <option value="El Triunfo">El Triunfo</option>
+                            <option value="Naranjal">Naranjal</option>
+                            <option value="Naranjito">Naranjito</option>
+                            <option value="Balao">Balao</option>
+                            <option value="Balzar">Balzar</option>
+                            <option value="Colimes">Colimes</option>
+                            <option value="Palestina">Palestina</option>
+                            <option value="Pedro Carbo">Pedro Carbo</option>
+                            <option value="Santa Lucía">Santa Lucía</option>
+                            <option value="Playas">Playas</option>
+                            <option value="Salinas">Salinas</option>
+                            <option value="Alfredo Baquerizo Moreno">Alfredo Baquerizo Moreno</option>
+                            <option value="Crnel. Marcelino Maridueña">Crnel. Marcelino Maridueña</option>
+                            <option value="Lomas de Sargentillo">Lomas de Sargentillo</option>
+                            <option value="Nobol">Nobol</option>
+                            <option value="El Empalme">El Empalme</option>
+                            <option value="Simón Bolívar">Simón Bolívar</option>
+                            <option value="Isidro Ayora">Isidro Ayora</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <hr>
+                <h3>Datos de Acceso al Sistema</h3>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="nombreUsuario">Nombre de Usuario *</label>
+                        <input type="text" id="nombreUsuario" required>
+                        <small>Este será usado para iniciar sesión</small>
+                    </div>
+                    <div class="form-group">
+                        <label for="contrasena">Contraseña *</label>
+                        <input type="password" id="contrasena" required>
+                        <small>Mínimo 6 caracteres</small>
+                    </div>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" onclick="closeModal('pacienteModal')" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../js/common.js"></script>
+    <script src="../js/pacientes.js"></script>
+</body>
+</html>

@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard - Sistema Médico</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 Sistema Médico</h2>
+        </div>
+        <div class="nav-menu">
+            <a href="dashboard.html" class="nav-link active">Dashboard</a>
+            <a href="pacientes.html" class="nav-link">Pacientes</a>
+            <a href="citas.html" class="nav-link">Citas</a>
+            <a href="medicos.html" class="nav-link">Médicos</a>
+            <a href="recepcionistas.html" class="nav-link">Recepcionistas</a>
+        </div>
+        <div class="nav-user">
+            <span id="userName">Usuario</span>
+            <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <h1>Panel de Control</h1>
+        
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-icon">👥</div>
+                <div class="stat-content">
+                    <h3 id="totalPacientes">-</h3>
+                    <p>Total Pacientes</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">👨‍⚕️</div>
+                <div class="stat-content">
+                    <h3 id="totalMedicos">-</h3>
+                    <p>Médicos Activos</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">📅</div>
+                <div class="stat-content">
+                    <h3 id="totalCitas">-</h3>
+                    <p>Citas Totales</p>
+                </div>
+            </div>
+            
+            <div class="stat-card">
+                <div class="stat-icon">💊</div>
+                <div class="stat-content">
+                    <h3 id="totalTratamientos">-</h3>
+                    <p>Tratamientos Activos</p>
+                </div>
+            </div>
+        </div>
+        
+        <div class="dashboard-content">
+            <div class="card">
+                <h2>Próximas Citas</h2>
+                <div id="proximasCitas" class="table-container">
+                    <p>Cargando...</p>
+                </div>
+            </div>
+            
+            <div class="card">
+                <h2>Pacientes Recientes</h2>
+                <div id="pacientesRecientes" class="table-container">
+                    <p>Cargando...</p>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <script src="../js/common.js"></script>
+    <script src="../js/dashboard.js"></script>
+</body>
+</html>

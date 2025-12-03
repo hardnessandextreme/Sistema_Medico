@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Médicos - Sistema Médico</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 Sistema Médico</h2>
+        </div>
+        <div class="nav-menu">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="pacientes.html" class="nav-link">Pacientes</a>
+            <a href="citas.html" class="nav-link">Citas</a>
+            <a href="medicos.html" class="nav-link active">Médicos</a>
+            <a href="recepcionistas.html" class="nav-link">Recepcionistas</a>
+        </div>
+        <div class="nav-user">
+            <span id="userName">Usuario</span>
+            <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Gestión de Médicos</h1>
+            <button onclick="openModalNuevoMedico()" class="btn btn-primary">+ Nuevo Médico</button>
+        </div>
+        
+        <!-- Tabla de Médicos Activos -->
+        <div class="card">
+            <h3 style="color: #4CAF50; margin-bottom: 15px;">✅ Médicos Activos</h3>
+            <div class="filter-bar">
+                <select id="especialidadFilter" onchange="loadMedicos()">
+                    <option value="">Todas las especialidades</option>
+                </select>
+            </div>
+            
+            <div class="table-container">
+                <table id="medicosActivosTable">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Especialidad</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicosActivosBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Tabla de Médicos Inactivos (Eliminados) -->
+        <div class="card" style="margin-top: 30px;">
+            <h3 style="color: #F44336; margin-bottom: 15px;">🗑️ Médicos Inactivos (Eliminados)</h3>
+            <div class="table-container">
+                <table id="medicosInactivosTable">
+                    <thead>
+                        <tr>
+                            <th>Cédula</th>
+                            <th>Nombre</th>
+                            <th>Especialidad</th>
+                            <th>Teléfono</th>
+                            <th>Email</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="medicosInactivosBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para crear/editar médico -->
+    <div id="medicoModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('medicoModal')">&times;</span>
+            <h2 id="modalTitle">Nuevo Médico</h2>
+            <form id="medicoForm">
+                <input type="hidden" id="medicoId">
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="cedula">Cédula *</label>
+                        <input type="text" id="cedula" required maxlength="10" pattern="[0-9]{10}" title="La cédula debe tener exactamente 10 dígitos">
+                    </div>
+                    <div class="form-group">
+                        <label for="nombres">Nombres *</label>
+                        <input type="text" id="nombres" required>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="apellidos">Apellidos *</label>
+                        <input type="text" id="apellidos" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="especialidadId">Especialidad *</label>
+                        <select id="especialidadId" required>
+                            <option value="">Seleccione especialidad</option>
+                        </select>
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fechaNacimiento">Fecha de Nacimiento</label>
+                        <input type="date" id="fechaNacimiento">
+                    </div>
+                    <div class="form-group">
+                        <label for="numeroLicencia">Número de Licencia</label>
+                        <input type="text" id="numeroLicencia">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" id="telefono" maxlength="10" pattern="[0-9]{10}" title="El teléfono debe tener exactamente 10 dígitos">
+                    </div>
+                    <div class="form-group">
+                        <label for="fotoUrl">URL de Foto</label>
+                        <input type="text" id="fotoUrl">
+                    </div>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="direccion">Dirección</label>
+                        <input type="text" id="direccion">
+                    </div>
+                    <div class="form-group">
+                        <label for="fechaContratacion">Fecha de Contratación</label>
+                        <input type="date" id="fechaContratacion">
+                    </div>
+                </div>
+                
+                <hr>
+                <h3>Datos de Acceso al Sistema</h3>
+                <div id="usuarioFields">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="nombreUsuario">Nombre de Usuario *</label>
+                            <input type="text" id="nombreUsuario" required>
+                            <small>Este será usado para iniciar sesión</small>
+                        </div>
+                        <div class="form-group">
+                            <label for="contrasena">Contraseña *</label>
+                            <input type="password" id="contrasena" required>
+                            <small>Mínimo 6 caracteres</small>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label>
+                        <input type="checkbox" id="activo" checked> Activo
+                    </label>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" onclick="closeModal('medicoModal')" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../js/common.js"></script>
+    <script src="../js/medicos.js"></script>
+</body>
+</html>

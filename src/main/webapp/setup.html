@@ -1,0 +1,413 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Configuración Inicial - Sistema Médico</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .setup-container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            width: 100%;
+            max-width: 500px;
+            animation: slideIn 0.5s ease;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .setup-header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        .setup-header h1 {
+            color: #333;
+            font-size: 28px;
+            margin-bottom: 10px;
+        }
+
+        .setup-header .icon {
+            font-size: 60px;
+            margin-bottom: 10px;
+        }
+
+        .setup-header p {
+            color: #666;
+            font-size: 14px;
+            line-height: 1.6;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            color: #333;
+            font-weight: 600;
+            margin-bottom: 8px;
+            font-size: 14px;
+        }
+
+        .form-group input {
+            width: 100%;
+            padding: 12px 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .form-group input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .form-group small {
+            display: block;
+            color: #999;
+            font-size: 12px;
+            margin-top: 5px;
+        }
+
+        .password-strength {
+            height: 4px;
+            background: #e0e0e0;
+            border-radius: 2px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .password-strength-bar {
+            height: 100%;
+            transition: all 0.3s;
+            width: 0;
+        }
+
+        .password-strength-bar.weak {
+            width: 33%;
+            background: #f44336;
+        }
+
+        .password-strength-bar.medium {
+            width: 66%;
+            background: #ff9800;
+        }
+
+        .password-strength-bar.strong {
+            width: 100%;
+            background: #4caf50;
+        }
+
+        .btn {
+            width: 100%;
+            padding: 14px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .alert {
+            padding: 12px 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            font-size: 14px;
+        }
+
+        .alert-error {
+            background: #ffebee;
+            color: #c62828;
+            border-left: 4px solid #c62828;
+        }
+
+        .alert-success {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border-left: 4px solid #2e7d32;
+        }
+
+        .alert-info {
+            background: #e3f2fd;
+            color: #1565c0;
+            border-left: 4px solid #1565c0;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .loading.active {
+            display: block;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .check-status {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 14px;
+            color: #666;
+        }
+
+        .check-status a {
+            color: #667eea;
+            text-decoration: none;
+            font-weight: 600;
+        }
+
+        .check-status a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <div class="setup-container">
+        <div class="setup-header">
+            <div class="icon">🏥</div>
+            <h1>Configuración Inicial</h1>
+            <p>Bienvenido al Sistema Médico. Cree la cuenta de administrador para comenzar.</p>
+        </div>
+
+        <div id="alertContainer"></div>
+
+        <form id="setupForm">
+            <div class="form-group">
+                <label for="nombreUsuario">Nombre de Usuario *</label>
+                <input type="text" id="nombreUsuario" required minlength="4" maxlength="50">
+                <small>Mínimo 4 caracteres, sin espacios</small>
+            </div>
+
+            <div class="form-group">
+                <label for="email">Correo Electrónico *</label>
+                <input type="email" id="email" required>
+            </div>
+
+            <div class="form-group">
+                <label for="contrasena">Contraseña *</label>
+                <input type="password" id="contrasena" required minlength="6">
+                <small>Mínimo 6 caracteres</small>
+                <div class="password-strength">
+                    <div class="password-strength-bar" id="strengthBar"></div>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label for="confirmarContrasena">Confirmar Contraseña *</label>
+                <input type="password" id="confirmarContrasena" required>
+            </div>
+
+            <button type="submit" class="btn" id="submitBtn">
+                🚀 Crear Cuenta de Administrador
+            </button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p style="margin-top: 10px; color: #666;">Creando cuenta...</p>
+        </div>
+
+        <div class="check-status">
+            <a href="index.html">← Ir al inicio de sesión</a>
+        </div>
+    </div>
+
+    <script>
+        const API_URL = 'http://localhost:8080/consultorio-medico/resources';
+
+        // Verificar si ya existe un administrador
+        async function checkAdminExists() {
+            try {
+                const response = await fetch(`${API_URL}/usuarios`);
+                const usuarios = await response.json();
+                
+                if (usuarios.length > 0) {
+                    showAlert('info', 'Ya existe una cuenta de administrador. Redirigiendo al login...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                    return true;
+                }
+                return false;
+            } catch (error) {
+                console.error('Error verificando usuarios:', error);
+                return false;
+            }
+        }
+
+        // Verificar fuerza de contraseña
+        document.getElementById('contrasena').addEventListener('input', function() {
+            const password = this.value;
+            const strengthBar = document.getElementById('strengthBar');
+            
+            let strength = 0;
+            if (password.length >= 6) strength++;
+            if (password.length >= 10) strength++;
+            if (/[A-Z]/.test(password)) strength++;
+            if (/[0-9]/.test(password)) strength++;
+            if (/[^A-Za-z0-9]/.test(password)) strength++;
+            
+            strengthBar.className = 'password-strength-bar';
+            if (strength <= 2) {
+                strengthBar.classList.add('weak');
+            } else if (strength <= 4) {
+                strengthBar.classList.add('medium');
+            } else {
+                strengthBar.classList.add('strong');
+            }
+        });
+
+        // Convertir usuario a mayúsculas
+        document.getElementById('nombreUsuario').addEventListener('input', function() {
+            this.value = this.value.toUpperCase().replace(/\s/g, '');
+        });
+
+        // Convertir email a mayúsculas
+        document.getElementById('email').addEventListener('input', function() {
+            this.value = this.value.toUpperCase();
+        });
+
+        // Manejar envío del formulario
+        document.getElementById('setupForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            
+            const nombreUsuario = document.getElementById('nombreUsuario').value.trim();
+            const email = document.getElementById('email').value.trim();
+            const contrasena = document.getElementById('contrasena').value;
+            const confirmarContrasena = document.getElementById('confirmarContrasena').value;
+            
+            // Validaciones
+            if (nombreUsuario.length < 4) {
+                showAlert('error', 'El nombre de usuario debe tener al menos 4 caracteres');
+                return;
+            }
+            
+            if (contrasena.length < 6) {
+                showAlert('error', 'La contraseña debe tener al menos 6 caracteres');
+                return;
+            }
+            
+            if (contrasena !== confirmarContrasena) {
+                showAlert('error', 'Las contraseñas no coinciden');
+                return;
+            }
+            
+            // Mostrar loading
+            document.getElementById('setupForm').style.display = 'none';
+            document.getElementById('loading').classList.add('active');
+            
+            try {
+                // Crear usuario administrador
+                const usuario = {
+                    nombreUsuario: nombreUsuario,
+                    contrasenaHash: contrasena, // El backend se encargará del hash
+                    email: email,
+                    rol: { idRol: 1 }, // Rol Administrador
+                    activo: true
+                };
+                
+                const response = await fetch(`${API_URL}/usuarios`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(usuario)
+                });
+                
+                if (response.ok) {
+                    showAlert('success', '¡Cuenta de administrador creada exitosamente! Redirigiendo...');
+                    setTimeout(() => {
+                        window.location.href = 'index.html';
+                    }, 2000);
+                } else {
+                    const error = await response.text();
+                    showAlert('error', 'Error al crear la cuenta: ' + error);
+                    document.getElementById('setupForm').style.display = 'block';
+                    document.getElementById('loading').classList.remove('active');
+                }
+            } catch (error) {
+                console.error('Error:', error);
+                showAlert('error', 'Error de conexión. Verifique que el servidor esté activo.');
+                document.getElementById('setupForm').style.display = 'block';
+                document.getElementById('loading').classList.remove('active');
+            }
+        });
+
+        function showAlert(type, message) {
+            const alertContainer = document.getElementById('alertContainer');
+            alertContainer.innerHTML = `
+                <div class="alert alert-${type}">
+                    ${message}
+                </div>
+            `;
+            
+            setTimeout(() => {
+                alertContainer.innerHTML = '';
+            }, 5000);
+        }
+
+        // Verificar al cargar la página
+        window.addEventListener('DOMContentLoaded', () => {
+            checkAdminExists();
+        });
+    </script>
+</body>
+</html>

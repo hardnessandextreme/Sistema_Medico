@@ -1,0 +1,232 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Citas - Sistema Médico</title>
+    <link rel="stylesheet" href="../css/styles.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="nav-brand">
+            <h2>🏥 Sistema Médico</h2>
+        </div>
+        <div class="nav-menu">
+            <a href="dashboard.html" class="nav-link">Dashboard</a>
+            <a href="pacientes.html" class="nav-link">Pacientes</a>
+            <a href="citas.html" class="nav-link active">Citas</a>
+            <a href="medicos.html" class="nav-link">Médicos</a>
+            <a href="recepcionistas.html" class="nav-link">Recepcionistas</a>
+        </div>
+        <div class="nav-user">
+            <span id="userName">Usuario</span>
+            <button onclick="logout()" class="btn btn-secondary">Cerrar Sesión</button>
+        </div>
+    </nav>
+    
+    <div class="container">
+        <div class="page-header">
+            <h1>Gestión de Citas Médicas</h1>
+            <button onclick="openModal('citaModal')" class="btn btn-primary">+ Nueva Cita</button>
+        </div>
+        
+        <!-- Filtros Globales -->
+        <div class="card">
+            <div class="filter-bar">
+                <input type="date" id="fechaInicio" onchange="loadCitas()">
+                <input type="date" id="fechaFin" onchange="loadCitas()">
+                <button onclick="loadCitas()" class="btn btn-secondary">Filtrar</button>
+                <button onclick="clearFilters()" class="btn btn-secondary">Limpiar</button>
+            </div>
+        </div>
+
+        <!-- Citas Pendientes -->
+        <div class="card">
+            <h3 style="color: #FFC107; margin-bottom: 15px;">⏳ Citas Pendientes</h3>
+            <div class="table-container">
+                <table id="citasPendientesTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasPendientesBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Citas Confirmadas -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="color: #4CAF50; margin-bottom: 15px;">✅ Citas Confirmadas</h3>
+            <div class="table-container">
+                <table id="citasConfirmadasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasConfirmadasBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Citas Atendidas -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="color: #2196F3; margin-bottom: 15px;">🏥 Citas Atendidas</h3>
+            <div class="table-container">
+                <table id="citasAtendidasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasAtendidasBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Citas Canceladas -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="color: #F44336; margin-bottom: 15px;">❌ Citas Canceladas</h3>
+            <div class="table-container">
+                <table id="citasCanceladasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Motivo Cancelación</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasCanceladasBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Citas Reprogramadas -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="color: #FF9800; margin-bottom: 15px;">🔄 Citas Reprogramadas</h3>
+            <div class="table-container">
+                <table id="citasReprogramadasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasReprogramadasBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Pacientes que No Asistieron -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="color: #9E9E9E; margin-bottom: 15px;">🚫 No Asistieron</h3>
+            <div class="table-container">
+                <table id="citasNoAsistioTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasNoAsistioBody">
+                        <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para crear/editar cita -->
+    <div id="citaModal" class="modal">
+        <div class="modal-content">
+            <span class="close" onclick="closeModal('citaModal')">&times;</span>
+            <h2 id="modalTitle">Nueva Cita</h2>
+            <form id="citaForm">
+                <input type="hidden" id="citaId">
+                
+                <div class="form-group">
+                    <label for="pacienteId">Paciente *</label>
+                    <select id="pacienteId" required>
+                        <option value="">Seleccione un paciente</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="medicoId">Médico *</label>
+                    <select id="medicoId" required>
+                        <option value="">Seleccione un médico</option>
+                    </select>
+                </div>
+                
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="fechaCita">Fecha *</label>
+                        <input type="date" id="fechaCita" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="horaCita">Hora *</label>
+                        <input type="time" id="horaCita" required>
+                    </div>
+                </div>
+                
+                <div class="form-group">
+                    <label for="estadoCitaId">Estado</label>
+                    <select id="estadoCitaId">
+                        <option value="">Seleccione un estado</option>
+                    </select>
+                </div>
+                
+                <div class="form-group">
+                    <label for="motivo">Motivo</label>
+                    <textarea id="motivo" rows="3"></textarea>
+                </div>
+                
+                <div class="form-actions">
+                    <button type="submit" class="btn btn-primary">Guardar</button>
+                    <button type="button" onclick="closeModal('citaModal')" class="btn btn-secondary">Cancelar</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    
+    <script src="../js/common.js"></script>
+    <script src="../js/citas.js"></script>
+</body>
+</html>

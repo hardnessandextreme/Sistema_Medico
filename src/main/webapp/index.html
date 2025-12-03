@@ -1,10 +1,80 @@
 <!DOCTYPE html>
-<html>
-    <head>
-        <title>Start Page</title>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-    </head>
-    <body>
-        <h1>Hello World!</h1>
-    </body>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login - Sistema Médico</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body class="login-page">
+    <div class="login-container">
+        <div class="login-box" id="loginBox">
+            <div class="logo">
+                <h1>🏥 Sistema Médico</h1>
+                <p>Consultorio Médico Digital</p>
+            </div>
+            
+            <div id="checkingSystem" style="text-align: center; padding: 20px;">
+                <div style="border: 4px solid #f3f3f3; border-top: 4px solid #667eea; border-radius: 50%; width: 40px; height: 40px; animation: spin 1s linear infinite; margin: 0 auto;"></div>
+                <p style="margin-top: 15px; color: #666;">Verificando sistema...</p>
+            </div>
+            
+            <form id="loginForm" style="display: none;">
+                <div class="form-group">
+                    <label for="username">Usuario</label>
+                    <input type="text" id="username" name="username" required>
+                </div>
+                
+                <div class="form-group">
+                    <label for="password">Contraseña</label>
+                    <input type="password" id="password" name="password" required>
+                </div>
+                
+                <div id="errorMessage" class="error-message"></div>
+                
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+            </form>
+            
+            <div class="login-footer">
+                <p>Sistema de Gestión Médica v1.0</p>
+            </div>
+        </div>
+    </div>
+    
+    <style>
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+    
+    <script>
+        // Verificar si existe un administrador al cargar
+        const API_URL = 'http://localhost:8080/consultorio-medico/resources';
+        
+        async function checkSystemSetup() {
+            try {
+                const response = await fetch(`${API_URL}/usuarios`);
+                const usuarios = await response.json();
+                
+                if (usuarios.length === 0) {
+                    // No hay usuarios, redirigir a setup
+                    window.location.href = 'setup.html';
+                } else {
+                    // Hay usuarios, mostrar formulario de login
+                    document.getElementById('checkingSystem').style.display = 'none';
+                    document.getElementById('loginForm').style.display = 'block';
+                }
+            } catch (error) {
+                console.error('Error verificando sistema:', error);
+                // Si hay error, mostrar formulario de login de todas formas
+                document.getElementById('checkingSystem').style.display = 'none';
+                document.getElementById('loginForm').style.display = 'block';
+            }
+        }
+        
+        window.addEventListener('DOMContentLoaded', checkSystemSetup);
+    </script>
+    <script src="js/login.js"></script>
+</body>
 </html>

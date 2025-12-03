@@ -1,0 +1,427 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Panel de Recepción</title>
+
+    <style>
+        body {
+            background: linear-gradient(to bottom, #add8e6, white);
+            font-family: Arial, sans-serif;
+            margin: 0;
+            padding: 0;
+        }
+
+        header {
+            text-align: center;
+            padding: 30px;
+            color: white;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+        }
+
+        h1 {
+            font-size: 2.3em;
+            margin: 0;
+        }
+
+        .welcome-text {
+            font-size: 1.2em;
+        }
+
+        .top-bar {
+            background-color: #004b6f;
+            color: #fff;
+            padding: 10px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.95em;
+        }
+
+        .top-bar a {
+            color: #ffeb3b;
+            text-decoration: none;
+            margin-left: 15px;
+        }
+
+        .top-bar a:hover {
+            text-decoration: underline;
+        }
+
+        section {
+            margin: 25px auto;
+            padding: 20px;
+            background-color: #ffffff;
+            border-radius: 10px;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            width: 90%;
+            max-width: 1100px;
+        }
+
+        h2 {
+            color: #004b6f;
+            margin-bottom: 15px;
+        }
+
+        .search-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .search-row label {
+            font-weight: bold;
+            margin-right: 5px;
+        }
+
+        .search-row select,
+        .search-row input[type="text"] {
+            flex: 1 1 220px;
+            padding: 8px 10px;
+            border-radius: 6px;
+            border: 1px solid #ccc;
+            font-size: 0.95em;
+        }
+
+        .btn-main {
+            border: none;
+            border-radius: 8px;
+            padding: 8px 16px;
+            background-color: #004b6f;
+            color: #fff;
+            cursor: pointer;
+            font-size: 0.95em;
+            transition: background-color 0.3s ease, transform 0.3s ease;
+        }
+
+        .btn-main:hover {
+            background-color: #006f8e;
+            transform: scale(1.02);
+        }
+
+        .patient-card {
+            margin-top: 15px;
+            display: none;
+            border-radius: 10px;
+            background-color: #e3f2fd;
+            padding: 15px 18px;
+        }
+
+        .patient-card h3 {
+            margin-top: 0;
+            color: #0d47a1;
+        }
+
+        .patient-info-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 8px 20px;
+            font-size: 0.9em;
+        }
+
+        .patient-info-item span {
+            font-weight: bold;
+            color: #37474f;
+        }
+
+        .data-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 15px;
+        }
+
+        .data-table th,
+        .data-table td {
+            padding: 8px 10px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 0.9em;
+        }
+
+        .data-table th {
+            background-color: #004b6f;
+            color: white;
+        }
+
+        .data-table td {
+            background-color: #f9f9f9;
+        }
+
+        .btn-accion {
+            border: none;
+            border-radius: 6px;
+            padding: 5px 8px;
+            font-size: 0.8em;
+            cursor: pointer;
+            margin-right: 4px;
+        }
+
+        .btn-confirmar {
+            background-color: #2e7d32;
+            color: #fff;
+        }
+
+        .btn-reprogramar {
+            background-color: #f9a825;
+            color: #fff;
+        }
+
+        .btn-cancelar-cita {
+            background-color: #c62828;
+            color: #fff;
+        }
+
+        .btn-accion:hover {
+            opacity: 0.9;
+        }
+
+        .tag-estado {
+            padding: 2px 8px;
+            border-radius: 10px;
+            font-size: 0.8em;
+        }
+
+        .estado-pendiente {
+            background-color: #fff3cd;
+            color: #856404;
+        }
+
+        .estado-confirmada {
+            background-color: #c8e6c9;
+            color: #2e7d32;
+        }
+
+        .estado-cancelada {
+            background-color: #ffcdd2;
+            color: #c62828;
+        }
+
+        .loading {
+            text-align: center;
+            color: #607d8b;
+            font-style: italic;
+        }
+    </style>
+
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.5.2/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+    <script src="js/session-check.jsp.js"></script>
+</head>
+<body>
+
+    <div class="top-bar">
+        <div>
+            Rol: <strong>Recepcionista</strong> | <strong id="nombreUsuario">(cargando...)</strong>
+        </div>
+        <div>
+            <a href="#" onclick="logoutJSP(); return false;" style="color: #ff6b6b;">
+                <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+
+    <header>
+        <h1>Clínica Salud y Bienestar</h1>
+        <p class="welcome-text">Panel de recepción – gestión de pacientes y citas</p>
+    </header>
+
+    <section>
+        <h2>Buscador de paciente</h2>
+        <p style="font-size:0.9em; color:#607d8b;">
+            Busca al paciente para ver sus datos básicos y consultas anteriores.
+        </p>
+
+        <div class="search-row">
+            <label for="pacienteSelect"><i class="fas fa-search"></i> Seleccionar paciente:</label>
+            <select id="pacienteSelect">
+                <option value="" selected disabled>Cargando pacientes...</option>
+            </select>
+            <button type="button" class="btn-main" onclick="mostrarPaciente()">Buscar</button>
+        </div>
+
+        <div id="patientCard" class="patient-card">
+            <h3 id="nombrePacienteTitulo">Paciente</h3>
+            <div class="patient-info-grid">
+                <div class="patient-info-item"><span>Cédula:</span> <span id="pacienteCedula"></span></div>
+                <div class="patient-info-item"><span>Edad:</span> <span id="pacienteEdad"></span></div>
+                <div class="patient-info-item"><span>Teléfono:</span> <span id="pacienteTelefono"></span></div>
+                <div class="patient-info-item"><span>Email:</span> <span id="pacienteEmail"></span></div>
+                <div class="patient-info-item"><span>Dirección:</span> <span id="pacienteDireccion"></span></div>
+            </div>
+
+            <h4 style="margin-top:18px; color:#004b6f;">Consultas anteriores</h4>
+            <table class="data-table" id="tablaConsultas">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>Médico</th>
+                        <th>Diagnóstico</th>
+                        <th>Observaciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr><td colspan="4" class="loading">Selecciona un paciente</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </section>
+
+    <section>
+        <h2>Citas del día</h2>
+        <p style="font-size:0.9em; color:#607d8b;">
+            Gestiona las citas programadas para hoy.
+        </p>
+
+        <table class="data-table" id="tablaCitasDia">
+            <thead>
+                <tr>
+                    <th>Hora</th>
+                    <th>Paciente</th>
+                    <th>Médico</th>
+                    <th>Motivo</th>
+                    <th>Estado</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr><td colspan="5" class="loading">Cargando citas...</td></tr>
+            </tbody>
+        </table>
+    </section>
+
+    <script>
+        async function updateUserInfo() {
+            const sessionData = await checkSessionJSP();
+            if (sessionData && sessionData.nombreUsuario) {
+                document.getElementById('nombreUsuario').textContent = sessionData.nombreUsuario;
+            }
+        }
+        
+        async function loadPacientes() {
+            try {
+                const response = await fetch(`${API_URL}/pacientes`, {credentials: 'include'});
+                const pacientes = await response.json();
+                
+                // Filtrar solo pacientes activos
+                const pacientesActivos = pacientes.filter(p => p.activo === true);
+                
+                const select = document.getElementById('pacienteSelect');
+                select.innerHTML = '<option value="" selected disabled>Seleccione un paciente</option>';
+                
+                pacientesActivos.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.idPaciente;
+                    option.textContent = `${p.nombres} ${p.apellidos} - ${p.cedula}`;
+                    select.appendChild(option);
+                });
+            } catch (error) {
+                console.error('Error cargando pacientes:', error);
+            }
+        }
+        
+        async function mostrarPaciente() {
+            const select = document.getElementById('pacienteSelect');
+            const idPaciente = select.value;
+            
+            if (!idPaciente) {
+                alert('Por favor, selecciona un paciente.');
+                return;
+            }
+            
+            try {
+                const response = await fetch(`${API_URL}/pacientes/${idPaciente}`, {credentials: 'include'});
+                const paciente = await response.json();
+                
+                document.getElementById('patientCard').style.display = 'block';
+                document.getElementById('nombrePacienteTitulo').textContent = `${paciente.nombres} ${paciente.apellidos}`;
+                document.getElementById('pacienteCedula').textContent = paciente.cedula;
+                document.getElementById('pacienteEdad').textContent = paciente.edad + ' años';
+                document.getElementById('pacienteTelefono').textContent = paciente.telefono || 'N/A';
+                document.getElementById('pacienteEmail').textContent = paciente.email || 'N/A';
+                document.getElementById('pacienteDireccion').textContent = paciente.direccion || 'N/A';
+                
+                // Cargar consultas del paciente
+                const consultasResp = await fetch(`${API_URL}/consultas/paciente/${idPaciente}`, {credentials: 'include'});
+                const consultas = await consultasResp.json();
+                
+                const tbody = document.querySelector('#tablaConsultas tbody');
+                tbody.innerHTML = '';
+                
+                if (consultas.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#607d8b;">No hay consultas registradas</td></tr>';
+                    return;
+                }
+                
+                consultas.forEach(c => {
+                    const medicoNombre = c.cita && c.cita.medico ? 
+                        `Dr. ${c.cita.medico.nombres} ${c.cita.medico.apellidos}` : 'N/A';
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${c.fechaConsulta || 'N/A'}</td>
+                        <td>${medicoNombre}</td>
+                        <td>${c.diagnostico || 'Sin diagnóstico'}</td>
+                        <td>${c.observaciones || 'Sin observaciones'}</td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error cargando paciente:', error);
+                alert('Error al cargar datos del paciente');
+            }
+        }
+        
+        async function loadCitasHoy() {
+            try {
+                const response = await fetch(`${API_URL}/citas`, {credentials: 'include'});
+                const citas = await response.json();
+                
+                const hoy = new Date().toISOString().split('T')[0];
+                // Filtrar solo citas con pacientes y médicos activos
+                const citasHoy = citas.filter(c => 
+                    c.fechaCita && c.fechaCita.startsWith(hoy) &&
+                    c.paciente && c.paciente.activo === true &&
+                    c.medico && c.medico.activo === true
+                );
+                
+                const tbody = document.querySelector('#tablaCitasDia tbody');
+                tbody.innerHTML = '';
+                
+                if (citasHoy.length === 0) {
+                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#607d8b;">No hay citas programadas para hoy</td></tr>';
+                    return;
+                }
+                
+                citasHoy.forEach(cita => {
+                    const pacienteNombre = cita.paciente ? `${cita.paciente.nombres} ${cita.paciente.apellidos}` : 'N/A';
+                    const medicoNombre = cita.medico ? `Dr. ${cita.medico.nombres} ${cita.medico.apellidos}` : 'N/A';
+                    const estado = cita.estadoCita ? cita.estadoCita.nombreEstado : 'Pendiente';
+                    
+                    const tr = document.createElement('tr');
+                    tr.innerHTML = `
+                        <td>${cita.horaCita || 'N/A'}</td>
+                        <td>${pacienteNombre}</td>
+                        <td>${medicoNombre}</td>
+                        <td>${cita.motivoConsulta || 'Sin motivo'}</td>
+                        <td><span class="tag-estado estado-${estado.toLowerCase()}">${estado}</span></td>
+                    `;
+                    tbody.appendChild(tr);
+                });
+            } catch (error) {
+                console.error('Error cargando citas:', error);
+                document.querySelector('#tablaCitasDia tbody').innerHTML = 
+                    '<tr><td colspan="5" style="color:red;">Error al cargar citas</td></tr>';
+            }
+        }
+        
+        // Inicializar
+        updateUserInfo();
+        loadPacientes();
+        loadCitasHoy();
+    </script>
+
+</body>
+</html>
