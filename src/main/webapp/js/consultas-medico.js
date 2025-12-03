@@ -4,6 +4,7 @@
 
 let currentCita = null;
 let currentPaciente = null;
+let consultaGuardada = false;
 
 // ============================================
 // CARGAR CITAS DEL DÍA
@@ -17,7 +18,8 @@ async function loadCitasDelDia() {
         const citasHoy = todasCitas.filter(c => 
             c.fechaCita && c.fechaCita.startsWith(hoy) &&
             c.paciente && c.paciente.activo === true &&
-            c.medico && c.medico.activo === true
+            c.medico && c.medico.activo === true &&
+            c.estadoCita && c.estadoCita.idEstadoCita === 7 // Solo PENDIENTES
         ).sort((a, b) => a.horaCita.localeCompare(b.horaCita));
         
         const tbody = document.getElementById('tbody-citas-dia');
@@ -28,6 +30,7 @@ async function loadCitasDelDia() {
             return;
         }
         
+        // Mostrar solo citas pendientes (sin consulta)
         citasHoy.forEach(cita => {
             const tr = document.createElement('tr');
             const pacienteNombre = `${cita.paciente.nombres} ${cita.paciente.apellidos}`;
@@ -53,6 +56,18 @@ async function loadCitasDelDia() {
 }
 
 // ============================================
+// VERIFICAR SI CITA YA TIENE CONSULTA
+// ============================================
+async function verificarSiTieneConsulta(idCita) {
+    try {
+        const response = await fetch(`${API_URL}/consultas/cita/${idCita}`, {credentials: 'include'});
+        return response.ok;
+    } catch (error) {
+        return false;
+    }
+}
+
+// ============================================
 // ABRIR MODAL DE CONSULTA
 // ============================================
 async function abrirConsulta(idCita) {
@@ -67,22 +82,16 @@ async function abrirConsulta(idCita) {
         }
         
         currentPaciente = currentCita.paciente;
+        consultaGuardada = false; // Resetear flag
         
-        // Verificar si ya existe una consulta para esta cita (404 es normal si no existe)
-        limpiarFormularioConsulta(); // Iniciar con formulario limpio
-        
-        try {
-            const consultaExistente = await fetch(`${API_URL}/consultas/cita/${idCita}`, {credentials: 'include'});
-            
-            if (consultaExistente.ok) {
-                const consulta = await consultaExistente.json();
-                cargarConsultaExistente(consulta);
-            }
-            // Si es 404, simplemente continuar con formulario limpio (sin mostrar error)
-        } catch (error) {
-            // Silenciar errores de red, continuar con formulario limpio
-            // console.log ya no es necesario
+        // Verificar si ya existe una consulta para esta cita
+        const tieneConsulta = await verificarSiTieneConsulta(idCita);
+        if (tieneConsulta) {
+            showError('Esta cita ya tiene una consulta registrada');
+            return;
         }
+        
+        limpiarFormularioConsulta(); // Iniciar con formulario limpio
         
         // Llenar datos del paciente
         document.getElementById('paciente-nombre').textContent = `${currentPaciente.nombres} ${currentPaciente.apellidos}`;
@@ -198,10 +207,61 @@ async function cargarHistorialConsultas(idPaciente) {
 // ============================================
 async function guardarConsulta() {
     try {
+        // Validar todos los campos obligatorios
+        const temperatura = document.getElementById('temperatura').value.trim();
+        const presionArterial = document.getElementById('presion-arterial').value.trim();
+        const frecuenciaCardiaca = document.getElementById('frecuencia-cardiaca').value.trim();
+        const frecuenciaRespiratoria = document.getElementById('frecuencia-respiratoria').value.trim();
+        const saturacionOxigeno = document.getElementById('saturacion-oxigeno').value.trim();
+        const peso = document.getElementById('peso').value.trim();
+        const altura = document.getElementById('altura').value.trim();
+        const sintomasActuales = document.getElementById('sintomas-actuales').value.trim();
+        const examenFisico = document.getElementById('examen-fisico').value.trim();
         const diagnostico = document.getElementById('diagnostico').value.trim();
+        const recomendaciones = document.getElementById('recomendaciones').value.trim();
         
-        if (!diagnostico) {
-            showError('El diagnóstico es obligatorio');
+        // Validar que todos los campos estén completos
+        if (!temperatura || !presionArterial || !frecuenciaCardiaca || !frecuenciaRespiratoria || 
+            !saturacionOxigeno || !peso || !altura || !sintomasActuales || !examenFisico || 
+            !diagnostico || !recomendaciones) {
+            showError('Todos los campos son obligatorios. Complete toda la información de la consulta.');
+            return;
+        }
+        
+        // Validar rangos de signos vitales
+        const tempNum = parseFloat(temperatura);
+        if (isNaN(tempNum) || tempNum < 35 || tempNum > 42) {
+            showError('Temperatura debe estar entre 35 y 42 °C');
+            return;
+        }
+        
+        const fcNum = parseInt(frecuenciaCardiaca);
+        if (isNaN(fcNum) || fcNum < 40 || fcNum > 200) {
+            showError('Frecuencia cardíaca debe estar entre 40 y 200 lpm');
+            return;
+        }
+        
+        const frNum = parseInt(frecuenciaRespiratoria);
+        if (isNaN(frNum) || frNum < 10 || frNum > 60) {
+            showError('Frecuencia respiratoria debe estar entre 10 y 60 rpm');
+            return;
+        }
+        
+        const satNum = parseInt(saturacionOxigeno);
+        if (isNaN(satNum) || satNum < 70 || satNum > 100) {
+            showError('Saturación de oxígeno debe estar entre 70 y 100%');
+            return;
+        }
+        
+        const pesoNum = parseFloat(peso);
+        if (isNaN(pesoNum) || pesoNum < 1 || pesoNum > 300) {
+            showError('Peso debe estar entre 1 y 300 kg');
+            return;
+        }
+        
+        const alturaNum = parseFloat(altura);
+        if (isNaN(alturaNum) || alturaNum < 0.4 || alturaNum > 2.5) {
+            showError('Altura debe estar entre 0.4 y 2.5 metros');
             return;
         }
         
@@ -249,18 +309,29 @@ async function guardarConsulta() {
         });
         
         if (response.ok) {
-            // Actualizar estado de la cita a "Atendida" (estado 9)
-            await actualizarEstadoCita(currentCita.idCita, 9);
+            // Obtener el estado de asistencia seleccionado
+            const estadoAsistencia = document.getElementById('estadoAsistencia').value;
             
+            // Actualizar estado de la cita según asistencia
+            // 9 = Atendida (se presentó), 11 = No asistió
+            await actualizarEstadoCita(currentCita.idCita, parseInt(estadoAsistencia));
+            
+            consultaGuardada = true; // Marcar como guardada
             showSuccess('Consulta guardada exitosamente');
             $('#modalConsulta').modal('hide');
             loadCitasDelDia();
+            loadHistorialCitasAtendidas(); // Recargar historial
         } else {
             const errorText = await response.text();
             console.error('Error del servidor:', errorText);
             try {
                 const errorJson = JSON.parse(errorText);
-                showError('Error: ' + (errorJson.error || errorText));
+                // Verificar si es error de duplicado
+                if (errorJson.error && errorJson.error.includes('llave duplicada')) {
+                    showError('Esta cita ya tiene una consulta registrada. No se puede duplicar.');
+                } else {
+                    showError('Error: ' + (errorJson.error || errorText));
+                }
             } catch (e) {
                 showError('Error al guardar consulta: ' + errorText);
             }
@@ -303,8 +374,146 @@ function showError(message) {
 }
 
 // ============================================
+// PREVENIR CIERRE DEL MODAL SIN GUARDAR
+// ============================================
+$('#modalConsulta').on('hide.bs.modal', function (e) {
+    // Solo prevenir cierre si hay datos y no se ha guardado
+    const diagnostico = document.getElementById('diagnostico').value.trim();
+    
+    if (diagnostico && !consultaGuardada) {
+        const confirmar = confirm('⚠️ Tiene cambios sin guardar en la consulta. ¿Está seguro de cerrar sin guardar?');
+        if (!confirmar) {
+            e.preventDefault();
+            return false;
+        }
+    }
+});
+
+// ============================================
+// CARGAR HISTORIAL DE CITAS ATENDIDAS
+// ============================================
+async function loadHistorialCitasAtendidas() {
+    try {
+        const response = await fetch(`${API_URL}/citas`, {credentials: 'include'});
+        const todasCitas = await response.json();
+        
+        const hoy = new Date().toISOString().split('T')[0];
+        
+        // Filtrar citas de hoy que NO estén pendientes (ya atendidas o no se presentó)
+        const citasAtendidas = todasCitas.filter(c => 
+            c.fechaCita && c.fechaCita.startsWith(hoy) &&
+            c.estadoCita && c.estadoCita.idEstadoCita !== 7 // Todos menos Pendiente
+        ).sort((a, b) => b.horaCita.localeCompare(a.horaCita)); // Más recientes primero
+        
+        const tbody = document.getElementById('tbody-historial-atendidas');
+        if (!tbody) return;
+        
+        tbody.innerHTML = '';
+        
+        if (citasAtendidas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#607d8b;">No hay citas atendidas hoy</td></tr>';
+            return;
+        }
+        
+        citasAtendidas.forEach(cita => {
+            const tr = document.createElement('tr');
+            const pacienteNombre = `${cita.paciente.nombres} ${cita.paciente.apellidos}`;
+            const estado = cita.estadoCita.nombreEstado;
+            const estadoClass = estado.toLowerCase().replace(/ /g, '-');
+            
+            tr.innerHTML = `
+                <td>${cita.horaCita || 'N/A'}</td>
+                <td>${pacienteNombre}</td>
+                <td>${cita.motivoConsulta || 'Sin motivo'}</td>
+                <td><span class="badge-estado badge-${estadoClass}">${estado}</span></td>
+                <td>
+                    <button class="btn-sm btn-info" onclick="verDetalleConsulta(${cita.idCita})" title="Ver detalles">
+                        <i class="fas fa-eye"></i>
+                    </button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } catch (error) {
+        console.error('Error cargando historial de atendidas:', error);
+    }
+}
+
+// ============================================
+// VER DETALLE DE CONSULTA (por ID de Cita)
+// ============================================
+async function verDetalleConsulta(idCita) {
+    try {
+        const response = await fetch(`${API_URL}/consultas/cita/${idCita}`, {credentials: 'include'});
+        if (!response.ok) {
+            showError('Esta cita no tiene consulta registrada');
+            return;
+        }
+        
+        const consulta = await response.json();
+        cargarModalDetalleConsulta(consulta);
+    } catch (error) {
+        console.error('Error cargando detalle:', error);
+        showError('Error al cargar detalles de la consulta');
+    }
+}
+
+// ============================================
+// VER DETALLE DE CONSULTA (por ID de Consulta)
+// ============================================
+async function verDetalleConsultaPorId(idConsulta) {
+    try {
+        const response = await fetch(`${API_URL}/consultas/${idConsulta}`, {credentials: 'include'});
+        if (!response.ok) {
+            showError('No se pudo cargar la consulta');
+            return;
+        }
+        
+        const consulta = await response.json();
+        cargarModalDetalleConsulta(consulta);
+    } catch (error) {
+        console.error('Error cargando detalle:', error);
+        showError('Error al cargar detalles de la consulta');
+    }
+}
+
+// ============================================
+// CARGAR DATOS EN MODAL DE DETALLE
+// ============================================
+function cargarModalDetalleConsulta(consulta) {
+    // Cargar datos en el modal de detalle (solo lectura)
+    document.getElementById('detalle-paciente-nombre').textContent = `${consulta.paciente.nombres} ${consulta.paciente.apellidos}`;
+    document.getElementById('detalle-paciente-cedula').textContent = consulta.paciente.cedula;
+    document.getElementById('detalle-fecha-consulta').textContent = new Date(consulta.fechaConsulta).toLocaleString('es-EC');
+    document.getElementById('detalle-motivo').value = consulta.motivoConsulta || 'N/A';
+    document.getElementById('detalle-sintomas').value = consulta.sintomasPresentados || 'N/A';
+    
+    // Parsear signos vitales
+    if (consulta.signosVitales) {
+        const signos = typeof consulta.signosVitales === 'string' ? JSON.parse(consulta.signosVitales) : consulta.signosVitales;
+        document.getElementById('detalle-temperatura').value = signos.temperatura || 'N/A';
+        document.getElementById('detalle-presion').value = signos.presionArterial || 'N/A';
+        document.getElementById('detalle-fc').value = signos.frecuenciaCardiaca || 'N/A';
+        document.getElementById('detalle-fr').value = signos.frecuenciaRespiratoria || 'N/A';
+        document.getElementById('detalle-sat').value = signos.saturacionOxigeno || 'N/A';
+        document.getElementById('detalle-peso').value = signos.peso || 'N/A';
+        document.getElementById('detalle-altura').value = signos.altura || 'N/A';
+    }
+    
+    document.getElementById('detalle-examen-fisico').value = consulta.examenFisico || 'N/A';
+    document.getElementById('detalle-diagnostico').value = consulta.diagnostico || 'N/A';
+    document.getElementById('detalle-observaciones').value = consulta.observaciones || 'N/A';
+    document.getElementById('detalle-recomendaciones').value = consulta.recomendaciones || 'N/A';
+    document.getElementById('detalle-proxima-cita').value = consulta.proximaCita || 'N/A';
+    
+    // Mostrar modal
+    $('#modalDetalleConsulta').modal('show');
+}
+
+// ============================================
 // INICIALIZAR
 // ============================================
 document.addEventListener('DOMContentLoaded', () => {
     loadCitasDelDia();
+    loadHistorialCitasAtendidas();
 });
