@@ -153,7 +153,7 @@ CREATE TABLE citas (
     id_medico INTEGER NOT NULL,
     fecha_cita DATE NOT NULL,
     hora_cita TIME NOT NULL,
-    motivo_consulta TEXT NOT NULL,
+    motivo_consulta TEXT,
     sintomas TEXT,
     id_estado_cita INTEGER NOT NULL DEFAULT 1,
     notas_recepcion TEXT,
@@ -177,11 +177,11 @@ CREATE TABLE consultas (
     id_paciente INTEGER NOT NULL,
     id_medico INTEGER NOT NULL,
     fecha_consulta TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
-    motivo_consulta TEXT NOT NULL,
+    motivo_consulta TEXT,
     sintomas_presentados TEXT,
-    signos_vitales JSONB, -- Temperatura, presión, etc.
+    signos_vitales TEXT, -- Temperatura, presión, etc.
     examen_fisico TEXT,
-    diagnostico TEXT NOT NULL,
+    diagnostico TEXT,
     observaciones TEXT,
     recomendaciones TEXT,
     proxima_cita DATE,
@@ -213,7 +213,7 @@ CREATE TABLE tratamientos (
     id_consulta INTEGER NOT NULL,
     id_medicamento INTEGER,
     medicamento_texto VARCHAR(200), -- Por si no está en catálogo
-    dosis VARCHAR(100) NOT NULL,
+    dosis VARCHAR(100),
     frecuencia VARCHAR(100) NOT NULL,
     duracion VARCHAR(100) NOT NULL,
     via_administracion VARCHAR(50),
@@ -289,8 +289,8 @@ CREATE TABLE auditorias (
     tabla_afectada VARCHAR(100),
     operacion VARCHAR(20), -- INSERT, UPDATE, DELETE
     registro_id INTEGER,
-    datos_anteriores JSONB,
-    datos_nuevos JSONB,
+    datos_anteriores jsonb,
+    datos_nuevos jsonb,
     fecha_operacion TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     direccion_ip VARCHAR(50),
     FOREIGN KEY (id_usuario) REFERENCES usuarios(id_usuario)
@@ -322,3 +322,44 @@ COMMENT ON TABLE medicos IS 'Información profesional de médicos';
 COMMENT ON TABLE citas IS 'Citas médicas programadas';
 COMMENT ON TABLE consultas IS 'Registro de consultas médicas realizadas';
 COMMENT ON TABLE tratamientos IS 'Tratamientos y medicamentos prescritos';
+
+-- ============================================
+-- DATOS INICIALES
+-- ============================================
+
+-- Insertar roles del sistema
+INSERT INTO roles (nombre_rol, descripcion) VALUES
+('Administrador', 'Acceso completo al sistema'),
+('Médico', 'Acceso a consultas, pacientes y tratamientos'),
+('Recepcionista', 'Gestión de citas y registro de pacientes'),
+('Paciente', 'Acceso limitado a su información médica');
+
+-- Insertar estados de citas
+INSERT INTO estados_cita (nombre_estado, descripcion, color_hex) VALUES
+('Programada', 'Cita programada y confirmada', '#3B82F6'),
+('Confirmada', 'Paciente confirmó asistencia', '#10B981'),
+('En Atención', 'Paciente siendo atendido', '#F59E0B'),
+('Completada', 'Consulta finalizada', '#6B7280'),
+('Cancelada', 'Cita cancelada por paciente o médico', '#EF4444'),
+('No Asistió', 'Paciente no se presentó', '#DC2626');
+
+-- Insertar especialidades médicas comunes
+INSERT INTO especialidades (nombre_especialidad, descripcion) VALUES
+('Medicina General', 'Atención médica general y preventiva'),
+('Pediatría', 'Atención médica infantil'),
+('Cardiología', 'Especialista en corazón y sistema cardiovascular'),
+('Dermatología', 'Especialista en piel'),
+('Ginecología', 'Salud femenina y reproductiva'),
+('Traumatología', 'Lesiones y enfermedades del sistema músculo-esquelético'),
+('Oftalmología', 'Especialista en ojos y visión'),
+('Odontología', 'Salud dental'),
+('Psicología', 'Salud mental y emocional'),
+('Nutrición', 'Alimentación y nutrición');
+
+-- Insertar algunos medicamentos comunes
+INSERT INTO medicamentos (nombre_comercial, nombre_generico, presentacion, concentracion) VALUES
+('Paracetamol', 'Paracetamol', 'Tabletas', '500mg'),
+('Ibuprofeno', 'Ibuprofeno', 'Tabletas', '400mg'),
+('Amoxicilina', 'Amoxicilina', 'Cápsulas', '500mg'),
+('Omeprazol', 'Omeprazol', 'Cápsulas', '20mg'),
+('Loratadina', 'Loratadina', 'Tabletas', '10mg');
