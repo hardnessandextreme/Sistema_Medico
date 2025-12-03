@@ -394,53 +394,11 @@
             }
         }
         
-        async function loadCitasHoy() {
-            try {
-                const response = await fetch(`${API_URL}/citas`, {credentials: 'include'});
-                const citas = await response.json();
-                
-                const hoy = new Date().toISOString().split('T')[0];
-                // Filtrar solo citas con pacientes y médicos activos
-                const citasHoy = citas.filter(c => 
-                    c.fechaCita && c.fechaCita.startsWith(hoy) &&
-                    c.paciente && c.paciente.activo === true &&
-                    c.medico && c.medico.activo === true
-                );
-                
-                const tbody = document.querySelector('#tablaCitasDia tbody');
-                tbody.innerHTML = '';
-                
-                if (citasHoy.length === 0) {
-                    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:#607d8b;">No hay citas programadas para hoy</td></tr>';
-                    return;
-                }
-                
-                citasHoy.forEach(cita => {
-                    const pacienteNombre = cita.paciente ? `${cita.paciente.nombres} ${cita.paciente.apellidos}` : 'N/A';
-                    const medicoNombre = cita.medico ? `Dr. ${cita.medico.nombres} ${cita.medico.apellidos}` : 'N/A';
-                    const estado = cita.estadoCita ? cita.estadoCita.nombreEstado : 'Pendiente';
-                    
-                    const tr = document.createElement('tr');
-                    tr.innerHTML = `
-                        <td>${cita.horaCita || 'N/A'}</td>
-                        <td>${pacienteNombre}</td>
-                        <td>${medicoNombre}</td>
-                        <td>${cita.motivoConsulta || 'Sin motivo'}</td>
-                        <td><span class="tag-estado estado-${estado.toLowerCase()}">${estado}</span></td>
-                    `;
-                    tbody.appendChild(tr);
-                });
-            } catch (error) {
-                console.error('Error cargando citas:', error);
-                document.querySelector('#tablaCitasDia tbody').innerHTML = 
-                    '<tr><td colspan="5" style="color:red;">Error al cargar citas</td></tr>';
-            }
-        }
+        // loadCitasHoy ahora está en recepcionista-citas.js
         
         // Inicializar
         updateUserInfo();
         loadPacientes();
-        loadCitasHoy();
     </script>
 
     <!-- MODAL AGENDAR CITA -->

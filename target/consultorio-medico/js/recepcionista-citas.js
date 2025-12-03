@@ -136,6 +136,15 @@ async function guardarCita() {
             return;
         }
         
+        // Validar que la fecha no sea anterior a hoy
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const fechaSeleccionada = new Date(fecha);
+        if (fechaSeleccionada < hoy) {
+            showError('No se puede agendar citas en fechas pasadas');
+            return;
+        }
+        
         // Agregar segundos si solo tiene HH:MM
         if (hora && hora.length === 5) {
             hora += ':00';

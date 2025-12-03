@@ -60,6 +60,7 @@ async function guardarNuevoPaciente() {
         const cedula = document.getElementById('pac-cedula').value.trim();
         const fechaNacimiento = document.getElementById('pac-fecha-nacimiento').value;
         const telefono = document.getElementById('pac-telefono').value.trim();
+        const email = document.getElementById('pac-email').value.trim();
         
         // Validaciones básicas
         if (!nombres || !apellidos || !cedula || !fechaNacimiento || !telefono) {
@@ -67,8 +68,50 @@ async function guardarNuevoPaciente() {
             return;
         }
         
+        // Validar cédula (10 dígitos)
+        if (!/^\d{10}$/.test(cedula)) {
+            showError('La cédula debe tener 10 dígitos numéricos');
+            return;
+        }
+        
+        // Validar teléfono (10 dígitos)
+        if (!/^\d{10}$/.test(telefono)) {
+            showError('El teléfono debe tener 10 dígitos numéricos');
+            return;
+        }
+        
+        // Validar email si se proporcionó
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) {
+            showError('El formato del email no es válido');
+            return;
+        }
+        
+        // Validar que la fecha de nacimiento no sea futura
+        const hoy = new Date();
+        const nacimiento = new Date(fechaNacimiento);
+        if (nacimiento > hoy) {
+            showError('La fecha de nacimiento no puede ser futura');
+            return;
+        }
+        
+        // Validar edad mínima (debe tener al menos 0 años)
+        const edadValidacion = calcularEdad(fechaNacimiento);
+        if (edadValidacion < 0 || edadValidacion > 150) {
+            showError('La fecha de nacimiento no es válida');
+            return;
+        }
+        
+        // Validar contacto de emergencia si se completó algún campo
+        const contactoNombre = document.getElementById('pac-contacto-nombre').value.trim();
+        const contactoTelefono = document.getElementById('pac-contacto-telefono').value.trim();
+        
+        if (contactoNombre && contactoTelefono && !/^\d{10}$/.test(contactoTelefono)) {
+            showError('El teléfono de emergencia debe tener 10 dígitos numéricos');
+            return;
+        }
+        
         // Calcular edad
-        const edad = calcularEdad(fechaNacimiento);
+        const edad = edadValidacion;
         
         // Crear objeto paciente
         const paciente = {
