@@ -81,5 +81,20 @@
     </div>
     
     <script src="js/login.js"></script>
+    <script>
+        // Asegurar que el evento se registre después de cargar el DOM
+        window.addEventListener('DOMContentLoaded', () => {
+            const link = document.getElementById('forgotPasswordLink');
+            if (link) {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const modal = document.getElementById('modalCambiarPassword');
+                    if (modal) {
+                        modal.style.display = 'block';
+                    }
+                });
+            }
+        });
+    </script>
 </body>
 </html>

@@ -57,11 +57,6 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 // ============================================
 // FUNCIONALIDAD CAMBIAR CONTRASEÑA
 // ============================================
-document.getElementById('forgotPasswordLink').addEventListener('click', (e) => {
-    e.preventDefault();
-    document.getElementById('modalCambiarPassword').style.display = 'block';
-});
-
 function cerrarModalPassword() {
     document.getElementById('modalCambiarPassword').style.display = 'none';
     document.getElementById('formCambiarPassword').reset();
