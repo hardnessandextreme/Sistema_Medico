@@ -11,13 +11,10 @@ async function loadCitas() {
         const response = await fetch(`${API_URL}/citas`, { credentials: 'include' });
         const citas = await response.json();
         
-        // Separar citas por estado (usando los nombres exactos de la BD)
-        const pendientes = citas.filter(c => c.estadoCita?.nombreEstado === 'Programada' || c.estadoCita?.nombreEstado === 'Pendiente');
-        const confirmadas = citas.filter(c => c.estadoCita?.nombreEstado === 'Confirmada');
-        const atendidas = citas.filter(c => c.estadoCita?.nombreEstado === 'Completada' || c.estadoCita?.nombreEstado === 'Atendida' || c.estadoCita?.nombreEstado === 'En Atención');
+        // Separar citas por estado (3 estados simplificados)
+        const pendientes = citas.filter(c => c.estadoCita?.nombreEstado === 'Pendiente');
+        const completadas = citas.filter(c => c.estadoCita?.nombreEstado === 'Completada');
         const canceladas = citas.filter(c => c.estadoCita?.nombreEstado === 'Cancelada');
-        const reprogramadas = citas.filter(c => c.estadoCita?.nombreEstado === 'Reprogramada');
-        const noAsistio = citas.filter(c => c.estadoCita?.nombreEstado === 'No Asistió' || c.estadoCita?.nombreEstado === 'No asistió');
         
         // Cargar citas eliminadas
         loadCitasEliminadas();
@@ -25,20 +22,11 @@ async function loadCitas() {
         // Renderizar Pendientes
         renderCitasTable('citasPendientesBody', pendientes, '#FFF9C4');
         
-        // Renderizar Confirmadas
-        renderCitasTable('citasConfirmadasBody', confirmadas, '#C8E6C9');
-        
-        // Renderizar Atendidas
-        renderCitasTable('citasAtendidasBody', atendidas, '#BBDEFB');
+        // Renderizar Completadas
+        renderCitasTable('citasCompletadasBody', completadas, '#C8E6C9');
         
         // Renderizar Canceladas (mostrar motivo)
         renderCitasCanceladas('citasCanceladasBody', canceladas);
-        
-        // Renderizar Reprogramadas
-        renderCitasTable('citasReprogramadasBody', reprogramadas, '#FFE0B2');
-        
-        // Renderizar No Asistió
-        renderCitasTable('citasNoAsistioBody', noAsistio, '#F5F5F5');
         
     } catch (error) {
         console.error('Error cargando citas:', error);
@@ -54,12 +42,11 @@ function renderCitasTable(tbodyId, citas, bgColor) {
     }
     
     tbody.innerHTML = citas.map(c => {
-        const estadoNombre = c.estadoCita ? c.estadoCita.nombreEstado : 'Programada';
-        const esAtendida = estadoNombre === 'Completada' || estadoNombre === 'Atendida' || estadoNombre === 'En Atención';
-        const noAsistio = estadoNombre === 'No Asistió' || estadoNombre === 'No asistió';
+        const estadoNombre = c.estadoCita ? c.estadoCita.nombreEstado : 'Pendiente';
+        const esCompletada = estadoNombre === 'Completada';
         
         let botonesExtra = '';
-        if (esAtendida || noAsistio) {
+        if (esCompletada) {
             botonesExtra = `<button onclick="verDetalleConsulta(${c.idCita})" class="btn btn-info" style="margin-right: 5px;"><i class="fas fa-eye"></i> Ver Consulta</button>`;
         }
         
