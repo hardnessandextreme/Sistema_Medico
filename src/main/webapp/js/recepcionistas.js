@@ -81,8 +81,8 @@ async function loadRecepcionistas() {
                     <td>${r.usuario && r.usuario.email ? r.usuario.email : 'N/A'}</td>
                     <td>${r.usuario ? r.usuario.nombreUsuario : 'N/A'}</td>
                     <td>
-                        <button onclick="editRecepcionista(${r.idRecepcionista})" class="btn btn-secondary">✏️ Editar</button>
-                        <button onclick="deleteRecepcionista(${r.idRecepcionista}, '${r.nombres} ${r.apellidos}')" class="btn btn-danger">🗑️ Eliminar</button>
+                        <button onclick="editRecepcionista(${r.idRecepcionista})" class="btn btn-secondary"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="deleteRecepcionista(${r.idRecepcionista}, '${r.nombres} ${r.apellidos}')" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
                     </td>
                 </tr>
             `).join('');
@@ -101,7 +101,7 @@ async function loadRecepcionistas() {
                     <td>${r.usuario && r.usuario.email ? r.usuario.email : 'N/A'}</td>
                     <td>${r.usuario ? r.usuario.nombreUsuario : 'N/A'}</td>
                     <td>
-                        <button onclick="reactivarRecepcionista(${r.idRecepcionista}, '${r.nombres} ${r.apellidos}')" class="btn btn-primary">♻️ Reactivar</button>
+                        <button onclick="reactivarRecepcionista(${r.idRecepcionista}, '${r.nombres} ${r.apellidos}')" class="btn btn-primary"><i class="fas fa-undo"></i> Reactivar</button>
                     </td>
                 </tr>
             `).join('');
@@ -211,7 +211,7 @@ async function editRecepcionista(id) {
         document.getElementById('nombreUsuario').removeAttribute('required');
         document.getElementById('contrasena').removeAttribute('required');
         
-        document.getElementById('modalTitle').textContent = '✏️ Editar Recepcionista';
+        document.getElementById('modalTitle').textContent = 'Editar Recepcionista';
         openModal('recepcionistaModal');
     } catch (error) {
         console.error('Error cargando recepcionista:', error);

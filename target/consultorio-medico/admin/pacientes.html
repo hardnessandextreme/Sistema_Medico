@@ -9,7 +9,7 @@
 <body>
     <nav class="navbar">
         <div class="nav-brand">
-            <h2>🏥 Sistema Médico</h2>
+            <h2><i class="fas fa-hospital"></i> Sistema Médico</h2>
         </div>
         <div class="nav-menu">
             <a href="dashboard.html" class="nav-link">Dashboard</a>
@@ -27,12 +27,12 @@
     <div class="container">
         <div class="page-header">
             <h1>Gestión de Pacientes</h1>
-            <button onclick="openModalNuevoPaciente()" class="btn btn-primary">+ Nuevo Paciente</button>
+            <button onclick="openNewPacienteModal()" class="btn btn-primary">+ Nuevo Paciente</button>
         </div>
         
         <!-- Tabla de Pacientes Activos -->
         <div class="card">
-            <h3 style="color: #4CAF50; margin-bottom: 15px;">✅ Pacientes Activos</h3>
+            <h3 style="color: #4CAF50; margin-bottom: 15px;"><i class="fas fa-check-circle"></i> Pacientes Activos</h3>
             <div class="search-bar">
                 <input type="text" id="searchInput" placeholder="Buscar por cédula o nombre..." onkeyup="searchPacientes()">
                 <button onclick="searchPacientes()" class="btn btn-secondary">Buscar</button>
@@ -148,7 +148,8 @@
                 
                 <div class="form-group">
                     <label for="email">Email</label>
-                    <input type="email" id="email" required pattern="[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}" title="Ingrese un correo electrónico válido">
+                    <input type="email" id="email">
+                    <small>Opcional - Si no lo ingresa, se generará automáticamente</small>
                 </div>
                 
                 <div class="form-row">
@@ -189,9 +190,9 @@
                 </div>
                 
                 <hr>
-                <h3>Datos de Acceso al Sistema</h3>
+                <h3 id="usuarioSectionTitle">Datos de Acceso al Sistema</h3>
                 
-                <div class="form-row">
+                <div class="form-row" id="usuarioFields">
                     <div class="form-group">
                         <label for="nombreUsuario">Nombre de Usuario *</label>
                         <input type="text" id="nombreUsuario" required>

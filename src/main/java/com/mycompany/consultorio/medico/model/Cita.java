@@ -63,10 +63,14 @@ public class Cita {
     @Column(name = "recordatorio_enviado")
     private Boolean recordatorioEnviado = false;
     
+    @Column(name = "activo")
+    private Boolean activo = true;
+    
     // Constructores
     public Cita() {
         this.fechaCreacion = LocalDateTime.now();
         this.recordatorioEnviado = false;
+        this.activo = true;
     }
     
     public Cita(Paciente paciente, Medico medico, java.time.LocalDate fechaCita, java.time.LocalTime horaCita, EstadoCita estadoCita) {
@@ -189,6 +193,14 @@ public class Cita {
     
     public void setRecordatorioEnviado(Boolean recordatorioEnviado) {
         this.recordatorioEnviado = recordatorioEnviado;
+    }
+    
+    public Boolean getActivo() {
+        return activo;
+    }
+    
+    public void setActivo(Boolean activo) {
+        this.activo = activo;
     }
     
     @Override

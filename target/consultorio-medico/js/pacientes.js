@@ -122,8 +122,8 @@ async function loadPacientes() {
                     <td>${p.telefono || 'N/A'}</td>
                     <td>${p.email || 'N/A'}</td>
                     <td>
-                        <button onclick="editPaciente(${p.idPaciente})" class="btn btn-secondary">✏️ Editar</button>
-                        <button onclick="deletePaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-danger">🗑️ Eliminar</button>
+                        <button onclick="editPaciente(${p.idPaciente})" class="btn btn-secondary"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="deletePaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
                     </td>
                 </tr>
             `).join('');
@@ -142,7 +142,7 @@ async function loadPacientes() {
                     <td>${p.telefono || 'N/A'}</td>
                     <td>${p.email || 'N/A'}</td>
                     <td>
-                        <button onclick="reactivarPaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-primary">♻️ Reactivar</button>
+                        <button onclick="reactivarPaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-primary"><i class="fas fa-undo"></i> Reactivar</button>
                     </td>
                 </tr>
             `).join('');
@@ -181,8 +181,8 @@ async function searchPacientes() {
                     <td>${p.telefono || 'N/A'}</td>
                     <td>${p.email || 'N/A'}</td>
                     <td>
-                        <button onclick="editPaciente(${p.idPaciente})" class="btn btn-secondary">✏️ Editar</button>
-                        <button onclick="deletePaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-danger">🗑️ Eliminar</button>
+                        <button onclick="editPaciente(${p.idPaciente})" class="btn btn-secondary"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="deletePaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
                     </td>
                 </tr>
             `).join('');
@@ -201,7 +201,7 @@ async function searchPacientes() {
                     <td>${p.telefono || 'N/A'}</td>
                     <td>${p.email || 'N/A'}</td>
                     <td>
-                        <button onclick="reactivarPaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-primary">♻️ Reactivar</button>
+                        <button onclick="reactivarPaciente(${p.idPaciente}, '${p.nombres} ${p.apellidos}')" class="btn btn-primary"><i class="fas fa-undo"></i> Reactivar</button>
                     </td>
                 </tr>
             `).join('');
@@ -322,12 +322,32 @@ async function editPaciente(id) {
         document.getElementById('direccion').value = paciente.direccion || '';
         document.getElementById('ciudad').value = paciente.ciudad || '';
         
+        // Ocultar campos de usuario al editar
+        document.getElementById('usuarioSectionTitle').style.display = 'none';
+        document.getElementById('usuarioFields').style.display = 'none';
+        document.getElementById('nombreUsuario').removeAttribute('required');
+        document.getElementById('contrasena').removeAttribute('required');
+        
         document.getElementById('modalTitle').textContent = 'Editar Paciente';
         openModal('pacienteModal');
     } catch (error) {
         console.error('Error cargando paciente:', error);
         showError('Error cargando datos del paciente');
     }
+}
+
+function openNewPacienteModal() {
+    document.getElementById('pacienteForm').reset();
+    document.getElementById('pacienteId').value = '';
+    
+    // Mostrar campos de usuario para nuevo paciente
+    document.getElementById('usuarioSectionTitle').style.display = 'block';
+    document.getElementById('usuarioFields').style.display = 'flex';
+    document.getElementById('nombreUsuario').setAttribute('required', 'required');
+    document.getElementById('contrasena').setAttribute('required', 'required');
+    
+    document.getElementById('modalTitle').textContent = 'Nuevo Paciente';
+    openModal('pacienteModal');
 }
 
 async function deletePaciente(id, nombre) {

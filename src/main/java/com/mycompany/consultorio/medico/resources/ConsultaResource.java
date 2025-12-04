@@ -69,6 +69,30 @@ public class ConsultaResource {
     }
     
     @GET
+    @Path("cita/{idCita}")
+    public Response getConsultaByCita(@PathParam("idCita") Integer idCita) {
+        try {
+            List<Consulta> consultas = consultaDAO.findAll();
+            Consulta consulta = consultas.stream()
+                    .filter(c -> c.getCita() != null && c.getCita().getIdCita().equals(idCita))
+                    .findFirst()
+                    .orElse(null);
+            
+            if (consulta != null) {
+                return Response.ok(consulta).build();
+            } else {
+                return Response.status(Response.Status.NOT_FOUND)
+                        .entity("{\"error\": \"No existe consulta para esta cita\"}")
+                        .build();
+            }
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+    
+    @GET
     @Path("medico/{idMedico}")
     public Response getConsultasByMedico(@PathParam("idMedico") Integer idMedico) {
         try {

@@ -19,6 +19,9 @@ async function loadCitas() {
         const reprogramadas = citas.filter(c => c.estadoCita?.nombreEstado === 'Reprogramada');
         const noAsistio = citas.filter(c => c.estadoCita?.nombreEstado === 'No asistió');
         
+        // Cargar citas eliminadas
+        loadCitasEliminadas();
+        
         // Renderizar Pendientes
         renderCitasTable('citasPendientesBody', pendientes, '#FFF9C4');
         
@@ -52,6 +55,14 @@ function renderCitasTable(tbodyId, citas, bgColor) {
     
     tbody.innerHTML = citas.map(c => {
         const estadoNombre = c.estadoCita ? c.estadoCita.nombreEstado : 'Pendiente';
+        const esAtendida = estadoNombre === 'Atendida';
+        const noAsistio = estadoNombre === 'No asistió';
+        
+        let botonesExtra = '';
+        if (esAtendida || noAsistio) {
+            botonesExtra = `<button onclick="verDetalleConsulta(${c.idCita})" class="btn btn-info" style="margin-right: 5px;"><i class="fas fa-eye"></i> Ver Consulta</button>`;
+        }
+        
         return `
         <tr style="background-color: ${bgColor};">
             <td>${formatDate(c.fechaCita)}</td>
@@ -60,9 +71,10 @@ function renderCitasTable(tbodyId, citas, bgColor) {
             <td>${c.medico.nombres} ${c.medico.apellidos}</td>
             <td>${c.medico.especialidad.nombreEspecialidad}</td>
             <td>
-                <button onclick="editCita(${c.idCita})" class="btn btn-secondary">✏️ Editar</button>
-                <button onclick="cambiarEstadoCita(${c.idCita}, '${estadoNombre}')" class="btn btn-primary">🔄 Estado</button>
-                <button onclick="deleteCita(${c.idCita})" class="btn btn-danger">🗑️ Eliminar</button>
+                ${botonesExtra}
+                <button onclick="editCita(${c.idCita})" class="btn btn-secondary"><i class="fas fa-edit"></i> Editar</button>
+                <button onclick="cambiarEstadoCita(${c.idCita}, '${estadoNombre}')" class="btn btn-primary"><i class="fas fa-sync-alt"></i> Estado</button>
+                <button onclick="deleteCita(${c.idCita})" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
             </td>
         </tr>
         `;
@@ -84,8 +96,8 @@ function renderCitasCanceladas(tbodyId, citas) {
             <td>${c.medico.nombres} ${c.medico.apellidos}</td>
             <td>${c.motivoCancelacion || 'N/A'}</td>
             <td>
-                <button onclick="editCita(${c.idCita})" class="btn btn-secondary">✏️ Ver Detalles</button>
-                <button onclick="deleteCita(${c.idCita})" class="btn btn-danger">🗑️ Eliminar</button>
+                <button onclick="editCita(${c.idCita})" class="btn btn-secondary"><i class="fas fa-eye"></i> Ver Detalles</button>
+                <button onclick="deleteCita(${c.idCita})" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
             </td>
         </tr>
     `).join('');
@@ -235,6 +247,122 @@ function clearFilters() {
     document.getElementById('fechaInicio').value = '';
     document.getElementById('fechaFin').value = '';
     loadCitas();
+}
+
+// ============================================
+// VER DETALLE DE CONSULTA
+// ============================================
+async function verDetalleConsulta(idCita) {
+    try {
+        const response = await fetch(`${API_URL}/consultas/cita/${idCita}`, {credentials: 'include'});
+        if (!response.ok) {
+            showError('Esta cita no tiene consulta registrada');
+            return;
+        }
+        
+        const consulta = await response.json();
+        cargarModalDetalleConsulta(consulta);
+    } catch (error) {
+        console.error('Error cargando detalle:', error);
+        showError('Error al cargar detalles de la consulta');
+    }
+}
+
+// ============================================
+// CARGAR DATOS EN MODAL DE DETALLE
+// ============================================
+function cargarModalDetalleConsulta(consulta) {
+    // Cargar datos en el modal de detalle (solo lectura)
+    document.getElementById('detalle-paciente-nombre').textContent = `${consulta.paciente.nombres} ${consulta.paciente.apellidos}`;
+    document.getElementById('detalle-paciente-cedula').textContent = consulta.paciente.cedula;
+    document.getElementById('detalle-fecha-consulta').textContent = new Date(consulta.fechaConsulta).toLocaleString('es-EC');
+    document.getElementById('detalle-motivo').value = consulta.motivoConsulta || 'N/A';
+    document.getElementById('detalle-sintomas').value = consulta.sintomasPresentados || 'N/A';
+    
+    // Parsear signos vitales
+    if (consulta.signosVitales) {
+        const signos = typeof consulta.signosVitales === 'string' ? JSON.parse(consulta.signosVitales) : consulta.signosVitales;
+        document.getElementById('detalle-temperatura').value = signos.temperatura || 'N/A';
+        document.getElementById('detalle-presion').value = signos.presionArterial || 'N/A';
+        document.getElementById('detalle-fc').value = signos.frecuenciaCardiaca || 'N/A';
+        document.getElementById('detalle-fr').value = signos.frecuenciaRespiratoria || 'N/A';
+        document.getElementById('detalle-sat').value = signos.saturacionOxigeno || 'N/A';
+        document.getElementById('detalle-peso').value = signos.peso || 'N/A';
+        document.getElementById('detalle-altura').value = signos.altura || 'N/A';
+    }
+    
+    document.getElementById('detalle-examen-fisico').value = consulta.examenFisico || 'N/A';
+    document.getElementById('detalle-diagnostico').value = consulta.diagnostico || 'N/A';
+    document.getElementById('detalle-observaciones').value = consulta.observaciones || 'N/A';
+    document.getElementById('detalle-recomendaciones').value = consulta.recomendaciones || 'N/A';
+    document.getElementById('detalle-proxima-cita').value = consulta.proximaCita || 'N/A';
+    
+    // Mostrar modal
+    openModal('modalDetalleConsulta');
+}
+
+// ============================================
+// CARGAR CITAS ELIMINADAS
+// ============================================
+async function loadCitasEliminadas() {
+    try {
+        const response = await fetch(`${API_URL}/citas/eliminadas`, { credentials: 'include' });
+        const citasEliminadas = await response.json();
+        
+        const tbody = document.getElementById('citasEliminadasBody');
+        if (citasEliminadas.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="7" style="text-align:center;">No hay citas eliminadas</td></tr>';
+            return;
+        }
+        
+        tbody.innerHTML = citasEliminadas.map(c => `
+            <tr style="background-color: #EEEEEE;">
+                <td>${formatDate(c.fechaCita)}</td>
+                <td>${c.horaCita}</td>
+                <td>${c.paciente.nombres} ${c.paciente.apellidos}</td>
+                <td>${c.medico.nombres} ${c.medico.apellidos}</td>
+                <td>${c.medico.especialidad.nombreEspecialidad}</td>
+                <td>${c.estadoCita ? c.estadoCita.nombreEstado : 'N/A'}</td>
+                <td>
+                    <button onclick="restaurarCita(${c.idCita})" class="btn btn-primary"><i class="fas fa-undo"></i> Restaurar</button>
+                </td>
+            </tr>
+        `).join('');
+    } catch (error) {
+        console.error('Error cargando citas eliminadas:', error);
+    }
+}
+
+// ============================================
+// RESTAURAR CITA ELIMINADA
+// ============================================
+async function restaurarCita(idCita) {
+    if (!confirm('¿Está seguro de restaurar esta cita?')) return;
+    
+    try {
+        const response = await fetch(`${API_URL}/citas/${idCita}`, { credentials: 'include' });
+        const cita = await response.json();
+        
+        cita.activo = true;
+        
+        const updateResponse = await fetch(`${API_URL}/citas/${idCita}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            credentials: 'include',
+            body: JSON.stringify(cita)
+        });
+        
+        if (updateResponse.ok) {
+            showSuccess('Cita restaurada exitosamente');
+            loadCitas();
+            loadCitasEliminadas();
+        } else {
+            showError('Error restaurando cita');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        showError('Error de conexión');
+    }
 }
 
 async function cambiarEstadoCita(idCita, estadoActual) {

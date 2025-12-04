@@ -30,7 +30,11 @@ public class CitaResource {
     public Response getAllCitas() {
         try {
             List<Cita> citas = citaDAO.findAll();
-            return Response.ok(citas).build();
+            // Filtrar solo citas activas (no eliminadas)
+            List<Cita> citasActivas = citas.stream()
+                    .filter(c -> c.getActivo() == null || c.getActivo())
+                    .toList();
+            return Response.ok(citasActivas).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"" + e.getMessage() + "\"}")
@@ -135,8 +139,29 @@ public class CitaResource {
     @Path("{id}")
     public Response deleteCita(@PathParam("id") Integer id) {
         try {
-            citaDAO.delete(id);
+            // Borrado lógico: establecer activo = false
+            Cita cita = citaDAO.findById(id)
+                    .orElseThrow(() -> new RuntimeException("Cita no encontrada"));
+            cita.setActivo(false);
+            citaDAO.save(cita);
             return Response.noContent().build();
+        } catch (Exception e) {
+            return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
+                    .entity("{\"error\": \"" + e.getMessage() + "\"}")
+                    .build();
+        }
+    }
+    
+    @GET
+    @Path("eliminadas")
+    public Response getCitasEliminadas() {
+        try {
+            List<Cita> citas = citaDAO.findAll();
+            // Filtrar solo citas eliminadas (activo = false)
+            List<Cita> citasEliminadas = citas.stream()
+                    .filter(c -> c.getActivo() != null && !c.getActivo())
+                    .toList();
+            return Response.ok(citasEliminadas).build();
         } catch (Exception e) {
             return Response.status(Response.Status.INTERNAL_SERVER_ERROR)
                     .entity("{\"error\": \"" + e.getMessage() + "\"}")

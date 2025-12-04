@@ -5,11 +5,12 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Citas - Sistema Médico</title>
     <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
 </head>
 <body>
     <nav class="navbar">
         <div class="nav-brand">
-            <h2>🏥 Sistema Médico</h2>
+            <h2><i class="fas fa-hospital"></i> Sistema Médico</h2>
         </div>
         <div class="nav-menu">
             <a href="dashboard.html" class="nav-link">Dashboard</a>
@@ -42,7 +43,7 @@
 
         <!-- Citas Pendientes -->
         <div class="card">
-            <h3 style="color: #FFC107; margin-bottom: 15px;">⏳ Citas Pendientes</h3>
+            <h3 style="color: #FFC107; margin-bottom: 15px;"><i class="fas fa-clock"></i> Citas Pendientes</h3>
             <div class="table-container">
                 <table id="citasPendientesTable">
                     <thead>
@@ -64,7 +65,7 @@
 
         <!-- Citas Confirmadas -->
         <div class="card" style="margin-top: 20px;">
-            <h3 style="color: #4CAF50; margin-bottom: 15px;">✅ Citas Confirmadas</h3>
+            <h3 style="color: #4CAF50; margin-bottom: 15px;"><i class="fas fa-check-circle"></i> Citas Confirmadas</h3>
             <div class="table-container">
                 <table id="citasConfirmadasTable">
                     <thead>
@@ -86,7 +87,7 @@
 
         <!-- Citas Atendidas -->
         <div class="card" style="margin-top: 20px;">
-            <h3 style="color: #2196F3; margin-bottom: 15px;">🏥 Citas Atendidas</h3>
+            <h3 style="color: #2196F3; margin-bottom: 15px;"><i class="fas fa-hospital"></i> Citas Atendidas</h3>
             <div class="table-container">
                 <table id="citasAtendidasTable">
                     <thead>
@@ -108,7 +109,7 @@
 
         <!-- Citas Canceladas -->
         <div class="card" style="margin-top: 20px;">
-            <h3 style="color: #F44336; margin-bottom: 15px;">❌ Citas Canceladas</h3>
+            <h3 style="color: #F44336; margin-bottom: 15px;"><i class="fas fa-times-circle"></i> Citas Canceladas</h3>
             <div class="table-container">
                 <table id="citasCanceladasTable">
                     <thead>
@@ -130,7 +131,7 @@
 
         <!-- Citas Reprogramadas -->
         <div class="card" style="margin-top: 20px;">
-            <h3 style="color: #FF9800; margin-bottom: 15px;">🔄 Citas Reprogramadas</h3>
+            <h3 style="color: #FF9800; margin-bottom: 15px;"><i class="fas fa-sync-alt"></i> Citas Reprogramadas</h3>
             <div class="table-container">
                 <table id="citasReprogramadasTable">
                     <thead>
@@ -152,7 +153,7 @@
 
         <!-- Pacientes que No Asistieron -->
         <div class="card" style="margin-top: 20px;">
-            <h3 style="color: #9E9E9E; margin-bottom: 15px;">🚫 No Asistieron</h3>
+            <h3 style="color: #9E9E9E; margin-bottom: 15px;"><i class="fas fa-user-times"></i> No Asistieron</h3>
             <div class="table-container">
                 <table id="citasNoAsistioTable">
                     <thead>
@@ -167,6 +168,29 @@
                     </thead>
                     <tbody id="citasNoAsistioBody">
                         <tr><td colspan="6">Cargando...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- Citas Eliminadas -->
+        <div class="card" style="margin-top: 20px;">
+            <h3 style="color: #000000; margin-bottom: 15px;"><i class="fas fa-trash-alt"></i> Citas Eliminadas</h3>
+            <div class="table-container">
+                <table id="citasEliminadasTable">
+                    <thead>
+                        <tr>
+                            <th>Fecha</th>
+                            <th>Hora</th>
+                            <th>Paciente</th>
+                            <th>Médico</th>
+                            <th>Especialidad</th>
+                            <th>Estado Anterior</th>
+                            <th>Acciones</th>
+                        </tr>
+                    </thead>
+                    <tbody id="citasEliminadasBody">
+                        <tr><td colspan="7">Cargando...</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -223,6 +247,118 @@
                     <button type="button" onclick="closeModal('citaModal')" class="btn btn-secondary">Cancelar</button>
                 </div>
             </form>
+        </div>
+    </div>
+    
+    <!-- MODAL DETALLE DE CONSULTA (SOLO LECTURA) -->
+    <div id="modalDetalleConsulta" class="modal">
+        <div class="modal-content" style="max-width: 1200px;">
+            <span class="close" onclick="closeModal('modalDetalleConsulta')">&times;</span>
+            <h2 style="background: linear-gradient(135deg, #00897b 0%, #00695c 100%); color: white; padding: 15px; margin: -20px -20px 20px -20px; border-radius: 8px 8px 0 0;">
+                <i class="fas fa-file-medical-alt"></i> Detalle de Consulta Médica
+            </h2>
+            
+            <!-- Información del Paciente -->
+            <div style="background-color: #e0f2f1; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="color: #00695c; margin-top: 0;"><i class="fas fa-user"></i> Información del Paciente</h3>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 15px;">
+                    <div>
+                        <strong>Nombre:</strong><br>
+                        <span id="detalle-paciente-nombre">-</span>
+                    </div>
+                    <div>
+                        <strong>Cédula:</strong><br>
+                        <span id="detalle-paciente-cedula">-</span>
+                    </div>
+                    <div>
+                        <strong>Fecha de Consulta:</strong><br>
+                        <span id="detalle-fecha-consulta">-</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Motivo y Síntomas -->
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="color: #004b6f; margin-top: 0;"><i class="fas fa-clipboard-list"></i> Motivo de Consulta</h3>
+                <div style="margin-bottom: 10px;">
+                    <label><strong>Motivo:</strong></label>
+                    <textarea id="detalle-motivo" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; font-family: inherit;" rows="2"></textarea>
+                </div>
+                <div>
+                    <label><strong>Síntomas Presentados:</strong></label>
+                    <textarea id="detalle-sintomas" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; font-family: inherit;" rows="2"></textarea>
+                </div>
+            </div>
+
+            <!-- Signos Vitales -->
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="color: #004b6f; margin-top: 0;"><i class="fas fa-heartbeat"></i> Signos Vitales</h3>
+                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 10px;">
+                    <div>
+                        <label>Temperatura (°C)</label>
+                        <input type="text" id="detalle-temperatura" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                    <div>
+                        <label>Presión Arterial</label>
+                        <input type="text" id="detalle-presion" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                    <div>
+                        <label>Frecuencia Cardíaca (lpm)</label>
+                        <input type="text" id="detalle-fc" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                    <div>
+                        <label>Frecuencia Respiratoria (rpm)</label>
+                        <input type="text" id="detalle-fr" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px;">
+                    <div>
+                        <label>Saturación O₂ (%)</label>
+                        <input type="text" id="detalle-sat" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                    <div>
+                        <label>Peso (kg)</label>
+                        <input type="text" id="detalle-peso" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                    <div>
+                        <label>Altura (m)</label>
+                        <input type="text" id="detalle-altura" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Evaluación Médica -->
+            <div style="background-color: #f5f5f5; padding: 15px; border-radius: 8px; margin-bottom: 15px;">
+                <h3 style="color: #004b6f; margin-top: 0;"><i class="fas fa-stethoscope"></i> Evaluación Médica</h3>
+                <div style="margin-bottom: 10px;">
+                    <label><strong>Examen Físico:</strong></label>
+                    <textarea id="detalle-examen-fisico" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; font-family: inherit;" rows="3"></textarea>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label><strong>Diagnóstico:</strong></label>
+                    <textarea id="detalle-diagnostico" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; font-family: inherit;" rows="3"></textarea>
+                </div>
+                <div style="margin-bottom: 10px;">
+                    <label><strong>Observaciones:</strong></label>
+                    <textarea id="detalle-observaciones" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; font-family: inherit;" rows="2"></textarea>
+                </div>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px;">
+                    <div>
+                        <label><strong>Recomendaciones:</strong></label>
+                        <textarea id="detalle-recomendaciones" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa; font-family: inherit;" rows="2"></textarea>
+                    </div>
+                    <div>
+                        <label><strong>Próxima Cita:</strong></label>
+                        <input type="text" id="detalle-proxima-cita" readonly style="width: 100%; padding: 8px; border: 1px solid #ddd; border-radius: 4px; background-color: #fafafa;">
+                    </div>
+                </div>
+            </div>
+
+            <div style="text-align: center; margin-top: 20px;">
+                <button type="button" onclick="closeModal('modalDetalleConsulta')" class="btn btn-secondary">
+                    <i class="fas fa-times"></i> Cerrar
+                </button>
+            </div>
         </div>
     </div>
     

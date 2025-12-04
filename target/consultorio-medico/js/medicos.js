@@ -91,8 +91,8 @@ async function loadMedicos() {
                     <td>${m.telefono || 'N/A'}</td>
                     <td>${m.usuario.email || 'N/A'}</td>
                     <td>
-                        <button onclick="editMedico(${m.idMedico})" class="btn btn-secondary">✏️ Editar</button>
-                        <button onclick="deleteMedico(${m.idMedico}, '${m.nombres} ${m.apellidos}')" class="btn btn-danger">🗑️ Eliminar</button>
+                        <button onclick="editMedico(${m.idMedico})" class="btn btn-secondary"><i class="fas fa-edit"></i> Editar</button>
+                        <button onclick="deleteMedico(${m.idMedico}, '${m.nombres} ${m.apellidos}')" class="btn btn-danger"><i class="fas fa-trash"></i> Eliminar</button>
                     </td>
                 </tr>
             `).join('');
@@ -111,7 +111,7 @@ async function loadMedicos() {
                     <td>${m.telefono || 'N/A'}</td>
                     <td>${m.usuario.email || 'N/A'}</td>
                     <td>
-                        <button onclick="reactivarMedico(${m.idMedico}, '${m.nombres} ${m.apellidos}')" class="btn btn-primary">♻️ Reactivar</button>
+                        <button onclick="reactivarMedico(${m.idMedico}, '${m.nombres} ${m.apellidos}')" class="btn btn-primary"><i class="fas fa-undo"></i> Reactivar</button>
                     </td>
                 </tr>
             `).join('');
@@ -260,7 +260,7 @@ async function editMedico(id) {
         document.getElementById('nombreUsuario').removeAttribute('required');
         document.getElementById('contrasena').removeAttribute('required');
         
-        document.getElementById('modalTitle').textContent = '✏️ Editar Médico';
+        document.getElementById('modalTitle').textContent = 'Editar Médico';
         openModal('medicoModal');
     } catch (error) {
         console.error('Error cargando médico:', error);
