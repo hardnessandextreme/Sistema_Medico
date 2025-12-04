@@ -138,11 +138,23 @@ async function guardarCita() {
         
         // Validar que la fecha no sea anterior a hoy
         const hoy = new Date();
-        hoy.setHours(0, 0, 0, 0);
-        const fechaSeleccionada = new Date(fecha);
-        if (fechaSeleccionada < hoy) {
+        const hoyStr = hoy.toISOString().split('T')[0]; // YYYY-MM-DD
+        
+        if (fecha < hoyStr) {
             showError('No se puede agendar citas en fechas pasadas');
             return;
+        }
+        
+        // Si es hoy, validar que la hora no haya pasado
+        if (fecha === hoyStr) {
+            const horaActual = hoy.getHours() * 60 + hoy.getMinutes();
+            const [horaHH, horaMM] = hora.split(':');
+            const horaSeleccionada = parseInt(horaHH) * 60 + parseInt(horaMM);
+            
+            if (horaSeleccionada <= horaActual) {
+                showError('No se puede agendar citas en horas que ya pasaron');
+                return;
+            }
         }
         
         // Agregar segundos si solo tiene HH:MM

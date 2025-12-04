@@ -31,6 +31,8 @@ function limpiarFormularioPaciente() {
     document.getElementById('pac-contacto-nombre').value = '';
     document.getElementById('pac-contacto-telefono').value = '';
     document.getElementById('pac-contacto-relacion').value = '';
+    document.getElementById('pac-usuario').value = '';
+    document.getElementById('pac-contrasena').value = '';
 }
 
 // ============================================
@@ -110,6 +112,25 @@ async function guardarNuevoPaciente() {
             return;
         }
         
+        // Validar campos de usuario y contraseña
+        const nombreUsuario = document.getElementById('pac-usuario').value.trim();
+        const contrasena = document.getElementById('pac-contrasena').value;
+        
+        if (!nombreUsuario) {
+            showError('El nombre de usuario es obligatorio');
+            return;
+        }
+        
+        if (!contrasena) {
+            showError('La contraseña es obligatoria');
+            return;
+        }
+        
+        if (contrasena.length < 6) {
+            showError('La contraseña debe tener al menos 6 caracteres');
+            return;
+        }
+        
         // Calcular edad
         const edad = edadValidacion;
         
@@ -133,7 +154,14 @@ async function guardarNuevoPaciente() {
             contactoEmergenciaNombre: document.getElementById('pac-contacto-nombre').value.trim() || null,
             contactoEmergenciaTelefono: document.getElementById('pac-contacto-telefono').value.trim() || null,
             contactoEmergenciaRelacion: document.getElementById('pac-contacto-relacion').value.trim() || null,
-            activo: true
+            activo: true,
+            usuario: {
+                nombreUsuario: nombreUsuario,
+                email: email || (nombreUsuario + '@paciente.clinica'),
+                contrasenaHash: contrasena,
+                rol: { idRol: 4 },
+                activo: true
+            }
         };
         
         // Enviar al servidor
